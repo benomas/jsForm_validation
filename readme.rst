@@ -1,3 +1,6 @@
+This is a codeigniter 3 structure, so you can see how to use jsFormValidation, in the future i will 
+try add more documentation, for now the next is the normal Codeigniter readme.
+
 ###################
 What is CodeIgniter
 ###################
