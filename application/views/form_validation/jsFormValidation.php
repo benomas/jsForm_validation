@@ -1,32 +1,59 @@
 <style>
 /*class for error message box*/
-.js-form-validation-dinamic-error
-{
-    background-color:#F2DEDE;
-    color:#a94442;
-    position: absolute;
-    padding:5px 10px;
-    border-bottom-left-radius: 8px;
-    border-bottom-right-radius: 8px;
-    border:2px solid #C9302C;
-}
 
 <?php
     /* customize your ouwn propertys*/
     if(isset($jsFormValidationDinamicError))
         echo '.js-form-validation-dinamic-error{'.$jsFormValidationDinamicError.'} ';
+    else
+    {
 ?>
 
-/*class for wraped element box*/
-.js-form-validation-error-container
-{
-    background-color:#C9302C;
-    padding:2px;
-    display:inline-block;
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
+    .js-form-validation-dinamic-error
+    {
+        background-color:#F2DEDE;
+        color:#a94442;
+        position: absolute;
+        padding:5px 10px;
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+        border:2px solid #C9302C;
+    }
+<?php
 }
+?>
 
+
+<?php
+    /* customize your ouwn propertys*/
+    if(isset($jsFormValidationErrorContainer))
+        echo '.js-form-validation-error-container{'.$jsFormValidationErrorContainer.'} ';
+    else
+    {
+?>
+    /*class for wraped element box*/
+    .js-form-validation-error-container
+    {
+        background-color:#C9302C;
+        padding:2px;
+        display:inline-block;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+    }
+<?php
+}
+?>
+
+<?php
+if(isset($fieldCssConfiguration))
+    foreach($fieldCssConfiguration AS $index=>$field)
+    {
+        if(isset($field['fieldContainer']))
+            echo ".js-form-validation-error-container-custom-".$index."{".$field['fieldContainer']."}";
+        if(isset($field['errorContainer']))
+            echo ".js-form-validation-dinamic-error-custom-".$index."{".$field['errorContainer']."}";
+    }
+?>
 <?php
     /* customize your ouwn propertys*/
     if(isset($jsFormValidationErrorContainer))
@@ -49,6 +76,11 @@ var tempField;
 var tempError;
 /* alias iterator for data element box container selector*/
 var fieldContainer;
+
+var customFieldsConfiguration = <?php if(isset($fieldCssConfiguration)) echo json_encode($fieldCssConfiguration); else echo '[]';?>;
+var custom_field_container_clases = "<?php if(isset($custom_field_container_clases)) echo $custom_field_container_clases;?>";
+var custom_error_container_clases = "<?php if(isset($custom_error_container_clases)) echo $custom_error_container_clases;?>";
+
 
 
 /**
@@ -103,8 +135,18 @@ function makeHtmlJsFormValidationErrors()
         if(typeof jsFormValidationErrorsObject[value]!== 'undefined')
         {
             tempField = $("[name='"+value+"']");
-            tempField.wrap('<div class="js-form-validation-error-container error-identifier-'+value+'"></div>');
-            $(".js-form-validation-list-errors").append("<div class=\"js-form-validation-dinamic-error error-identifier-"+value+"\" >"+jsFormValidationErrorsObject[value]+"</div>");
+
+
+            //fieldContainer"=>"","errorContainer"
+            if(typeof customFieldsConfiguration[value] !=='undefined' && typeof customFieldsConfiguration[value]["fieldContainer"] !=='undefined' )
+                tempField.wrap('<div class="'+custom_field_container_clases + ' js-form-validation-error-container-custom-' +value+ ' js-form-validation-error-container error-identifier-'+value+'"></div>');
+            else   
+                tempField.wrap('<div class="'+custom_field_container_clases+' js-form-validation-error-container error-identifier-'+value+'"></div>');
+            
+            if(typeof customFieldsConfiguration[value] !=='undefined' && typeof customFieldsConfiguration[value]["errorContainer"] !=='undefined' )
+                $(".js-form-validation-list-errors").append('<div class=" ' + custom_error_container_clases + ' js-form-validation-dinamic-error-custom-' +value+ ' js-form-validation-dinamic-error error-identifier-'+value+'" >'+jsFormValidationErrorsObject[value]+'</div>');
+            else                
+                $(".js-form-validation-list-errors").append('<div class=" ' + custom_error_container_clases + ' js-form-validation-dinamic-error error-identifier-'+value+'" >'+jsFormValidationErrorsObject[value]+'</div>');
 
             $.each(tempField,function(index,subValue)
             {
