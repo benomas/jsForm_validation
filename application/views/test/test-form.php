@@ -26,7 +26,7 @@
     <input type="radio" name="field3" value="female">Female<br>
     field4:
     <textarea name="field4"></textarea>
-    <button id="submit-button" onclick="return false;">Simular</button>
+    <button id="submit-button" onclick="return false;">Simule</button>
 </form>
 <script>
 /*
