@@ -447,9 +447,9 @@ class MY_Form_validation extends CI_Form_validation
 	 * @param	string	the field name
 	 * @return	void
 	 */
-	public function error($field = '', $prefix = '', $suffix = '')
+	public function error($field , $prefix = '', $suffix = '')
 	{
-		if(	$field==='')
+		if(	!isset($field) || $field==='*')
 		{
 			$errors = array();
 			foreach($this->_field_data AS $field)

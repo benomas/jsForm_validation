@@ -36,7 +36,7 @@ class Welcome extends CI_Controller {
 			echo json_encode( array("status"=>"correct"));
 		}
 		else
-			echo json_encode(array("status"=>"error","errorList"=>$this->form_validation->error()));
+			echo json_encode(array("status"=>"error","errorList"=>$this->form_validation->error('*')));
 
 	}
 }
