@@ -1,7 +1,6 @@
 <form id="test-form">
     <br>
     <br>
-    <div id="testxxx">
     field1:
     <input name="field1"></input>
     <br>
@@ -21,7 +20,6 @@
         </option>
     </select>
     <br>
-    </div>
     field3:
     <input type="radio" name="field3" value="male">Male<br>
     field3:
@@ -44,7 +42,6 @@ $(document).ready(function()
     var testList = ['field1','field2','field3','field4'];
 
     var formValidationRenderInstance =  new jsFormValidationRender(document,testList,testError);
-
     formValidationRenderInstance.makeHtmlJsFormValidationErrors();
 
     $("#submit-button").click(function()

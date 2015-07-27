@@ -19,8 +19,6 @@ class Welcome extends CI_Controller {
 	{
 		$this->load->view('test/head');
 		$this->load->view('test/test-form');
-		$data['fieldList'] = array("field1","field2","field3","field4");
-		$this->load->view('form_validation/jsFormValidation',$data);
 		$this->load->view('test/footer');
 	}
 
