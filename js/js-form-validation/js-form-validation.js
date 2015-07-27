@@ -79,8 +79,11 @@ function jsFormValidationError(jqueryObject)
     //set error container jquery object
     this.setErrorContainer          = function(html)
     {
-        this.jqueryObject.wrap(html);
+        var tempErrorContainer = $(html);
+        tempErrorContainer.css({"padding":"0"});
+        this.jqueryObject.wrap(tempErrorContainer);
         this.errorContainer = this.jqueryObject.parent();
+        $(this.errorContainer).animate({"padding":"2px"},800);
     }
 
     //set error message container jquery object
@@ -256,7 +259,7 @@ function jsFormValidationRender(context,fieldList,errorsObject)
             {
                 errorValue.setErrorContainer('<div class="'+thisInvoker.jsFormValidationErrorContainerClasses+' error-identifier-'+errorValue.getName()+'"></div>');
                 var newErrorMessage = $('<div class=" ' + thisInvoker.jsFormValidationDinamicErrorClasses + ' error-identifier-'+errorValue.getName()+'" >'+thisInvoker.jsFormValidationErrorsObject[errorValue.getName()]+'</div>');
-                $(".js-form-validation-list-errors").append(newErrorMessage);
+                thisInvoker.jsFormValidationErrorListContainer.append(newErrorMessage);
                 newErrorMessage.hide(0,function()
                 {
                     errorValue.setErrorMessageContainer(newErrorMessage);
@@ -280,6 +283,8 @@ function jsFormValidationRender(context,fieldList,errorsObject)
             this.jsFormValidationErrorListContainer =$('<div class="js-form-validation-list-errors"></div>');
             $('body').append(this.jsFormValidationErrorListContainer);
         }
+        else
+            this.jsFormValidationErrorListContainer = $(".js-form-validation-list-errors");
         this.setJsFormValidationErrorContainerClasses();
         this.setJsFormValidationDinamicErrorClasses();
         this.setJsFormValidationContext(context);
