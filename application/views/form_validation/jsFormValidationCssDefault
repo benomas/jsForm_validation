@@ -1,0 +1,63 @@
+<style>
+/*class for error message box*/
+
+<?php
+    /* customize your ouwn propertys*/
+    if(isset($jsFormValidationDinamicError))
+        echo '.js-form-validation-dinamic-error{'.$jsFormValidationDinamicError.'} ';
+    else
+    {
+?>
+
+    .js-form-validation-dinamic-error
+    {
+        background-color:#F2DEDE;
+        color:#a94442;
+        position: absolute;
+        padding:5px 10px;
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+        border:2px solid #C9302C;
+    }
+<?php
+}
+?>
+
+
+<?php
+    /* customize your ouwn propertys*/
+    if(isset($jsFormValidationErrorContainer))
+        echo '.js-form-validation-error-container{'.$jsFormValidationErrorContainer.'} ';
+    else
+    {
+?>
+    /*class for wraped element box*/
+    .js-form-validation-error-container
+    {
+        background-color:#C9302C;
+        padding:2px;
+        display:inline-block;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+    }
+<?php
+}
+?>
+
+<?php
+if(isset($fieldCssConfiguration))
+    foreach($fieldCssConfiguration AS $index=>$field)
+    {
+        if(isset($field['fieldContainer']))
+            echo ".js-form-validation-error-container-custom-".$index."{".$field['fieldContainer']."}";
+        if(isset($field['errorContainer']))
+            echo ".js-form-validation-dinamic-error-custom-".$index."{".$field['errorContainer']."}";
+    }
+?>
+<?php
+    /* customize your ouwn propertys*/
+    if(isset($jsFormValidationErrorContainer))
+        echo '.js-form-validation-error-container{'.$jsFormValidationErrorContainer.'} ';
+?>
+
+</style>

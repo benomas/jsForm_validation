@@ -1,14 +1,5 @@
 <style>
 /*class for error message box*/
-
-<?php
-    /* customize your ouwn propertys*/
-    if(isset($jsFormValidationDinamicError))
-        echo '.js-form-validation-dinamic-error{'.$jsFormValidationDinamicError.'} ';
-    else
-    {
-?>
-
     .js-form-validation-dinamic-error
     {
         background-color:#F2DEDE;
@@ -19,18 +10,7 @@
         border-bottom-right-radius: 8px;
         border:2px solid #C9302C;
     }
-<?php
-}
-?>
 
-
-<?php
-    /* customize your ouwn propertys*/
-    if(isset($jsFormValidationErrorContainer))
-        echo '.js-form-validation-error-container{'.$jsFormValidationErrorContainer.'} ';
-    else
-    {
-?>
     /*class for wraped element box*/
     .js-form-validation-error-container
     {
@@ -40,213 +20,282 @@
         border-top-left-radius: 4px;
         border-top-right-radius: 4px;
     }
-<?php
-}
-?>
-
-<?php
-if(isset($fieldCssConfiguration))
-    foreach($fieldCssConfiguration AS $index=>$field)
-    {
-        if(isset($field['fieldContainer']))
-            echo ".js-form-validation-error-container-custom-".$index."{".$field['fieldContainer']."}";
-        if(isset($field['errorContainer']))
-            echo ".js-form-validation-dinamic-error-custom-".$index."{".$field['errorContainer']."}";
-    }
-?>
-<?php
-    /* customize your ouwn propertys*/
-    if(isset($jsFormValidationErrorContainer))
-        echo '.js-form-validation-error-container{'.$jsFormValidationErrorContainer.'} ';
-?>
-
 </style>
-<!-- box with list of field errors -->
-<div class="js-form-validation-list-errors">
-</div>
 <script>
-    /* json array with all the processed errors*/
-var jsFormValidationErrorsObject = [] ;
-    /* json object with all the data elements names to follow */
-var jsFormValidationFieldList = <?php if(isset($fieldList)){ echo json_encode($fieldList);}else{ echo '[]';}?>;
 
-/* alias iterator for data element name selector*/
-var tempField;
-/* alias iterator for error message box selector of data element*/
-var tempError;
-/* alias iterator for data element box container selector*/
-var fieldContainer;
-
-var customFieldsConfiguration = <?php if(isset($fieldCssConfiguration)) echo json_encode($fieldCssConfiguration); else echo '[]';?>;
-var custom_field_container_clases = "<?php if(isset($custom_field_container_clases)) echo $custom_field_container_clases;?>";
-var custom_error_container_clases = "<?php if(isset($custom_error_container_clases)) echo $custom_error_container_clases;?>";
-
-
-
-/**
- * descripcion  remove preview validation errors and triggers
- * @author      Benomas (benomas@gmail.com) 2015
- * @return      false
- */
-function cleanJsFormValidationErrors()
+$.fn.emptyObject = function ()
 {
-    $.each(jsFormValidationFieldList,function(index,value)
-    {
-        if($($("[name='"+value+"']").parent()).hasClass("js-form-validation-error-container"))
-        {
-            $($("[name='"+value+"']").parent()).unbind('mouseenter');
-            $($("[name='"+value+"']").parent()).unbind('mouseleave');
-            $("[name='"+value+"']").unwrap();
+    return this.length === 0;
+}
 
-            $("[name='"+value+"']").unbind("showError");
-            $("[name='"+value+"']").unbind("hideError");
-            $(".js-form-validation-dinamic-error.error-identifier-"+value).remove();
+function jsFormValidationError(jqueryObject)
+{
+    this.jqueryObject           = null;
+    this.name                   = '';
+    this.selector               = '';
+    this.errorContainer         = null;
+    this.errorMessage           = '';
+    this.errorMessageContainer  = null;
+    this.animationStatus        = 'waiting';
+    this.requireShowAnimation   = false;
+    this.requireHideAnimation   = false;
+
+    this.initializeJsFormValidationError = function(jqueryObject)
+    {
+        this.jqueryObject   = jqueryObject;
+        this.name           = this.jqueryObject.prop('name');
+        this.selector       = "[name='"+this.jqueryObject.prop('name')+"']";
+        this.errorContainer = null;
+        this.errorMessage   = '';
+        this.errorMessageContainer = null;
+    }
+
+    this.cleanJsFormValidationError = function()
+    {
+        if(this.errorContainer!== null)
+        {
+            $(this.errorContainer).unbind('mouseenter');
+            $(this.errorContainer).unbind('mouseleave');
+            this.jqueryObject.unwrap();
         }
-    });
-    $(".js-form-validation-list-errors").html('');
-    return false;
-}
-
-
-/**
- * descripcion  process a new list of errors
- * @author      Benomas  (benomas@gmail.com) 2015
- * @param       json array of errors {"field":"error field message"}
- * @return      void
- */
-function setJsFormValidationErrorsObject(newValues)
-{
-    cleanJsFormValidationErrors();
-    jsFormValidationErrorsObject = newValues;
-    makeHtmlJsFormValidationErrors();
-    jsFormValidationBinder();
-}
-
-/**
- * descripcion  insert html for prepare messages to show
- * @author      Benomas  (benomas@gmail.com) 2015
- * @param
- * @return      void
- */
-function makeHtmlJsFormValidationErrors()
-{
-    $.each(jsFormValidationFieldList,function(index,value)
-    {
-        if(typeof jsFormValidationErrorsObject[value]!== 'undefined')
+        if(this.errorMessageContainer!== null)
         {
-            tempField = $("[name='"+value+"']");
-
-
-            //fieldContainer"=>"","errorContainer"
-            if(typeof customFieldsConfiguration[value] !=='undefined' && typeof customFieldsConfiguration[value]["fieldContainer"] !=='undefined' )
-                tempField.wrap('<div class="'+custom_field_container_clases + ' js-form-validation-error-container-custom-' +value+ ' js-form-validation-error-container error-identifier-'+value+'"></div>');
-            else   
-                tempField.wrap('<div class="'+custom_field_container_clases+' js-form-validation-error-container error-identifier-'+value+'"></div>');
-            
-            if(typeof customFieldsConfiguration[value] !=='undefined' && typeof customFieldsConfiguration[value]["errorContainer"] !=='undefined' )
-                $(".js-form-validation-list-errors").append('<div class=" ' + custom_error_container_clases + ' js-form-validation-dinamic-error-custom-' +value+ ' js-form-validation-dinamic-error error-identifier-'+value+'" >'+jsFormValidationErrorsObject[value]+'</div>');
-            else                
-                $(".js-form-validation-list-errors").append('<div class=" ' + custom_error_container_clases + ' js-form-validation-dinamic-error error-identifier-'+value+'" >'+jsFormValidationErrorsObject[value]+'</div>');
-
-            $.each(tempField,function(index,subValue)
-            {
-                if($(subValue).prop("type")==='radio')
-                {
-                    $(subValue).parent().css({"padding-bottom":"4px"});
-                }
-
-                $($(subValue).parent()).on( "mouseenter", function()
-                {
-                    if( typeof $(subValue).prop("pintrot-show-animation") ==="undefined" || $(subValue).prop("pintrot-show-animation")==="false")
-                    {
-                        $(subValue).prop("pintrot-show-animation","true");
-                        $(subValue).trigger("showError");
-                    }
-                });
-
-                $($(subValue).parent()).on( "mouseleave",function()
-                {
-                    if( typeof $(subValue).prop("pintrot-show-animation") !=="undefined" && $(subValue).prop("pintrot-show-animation")==="true")
-                    {
-                        $(subValue).trigger("hideError");
-                    }
-                });
-            });
-
+            this.errorMessageContainer.remove();
         }
-    });
-}
+        this.errorContainer = null;
+        this.errorMessage   = '';
+        this.errorMessageContainer = null;
+    }
 
-/**
- * descripcion  bind events for show current validation errors
- * @author      Benomas  (benomas@gmail.com) 2015
- * @param
- * @return      void
- */
-function jsFormValidationBinder()
-{
-    $.each(jsFormValidationFieldList,function(index,value)
+    this.getAnimationStatus         = function()
     {
-        $.each($("[name='"+value+"']"),function(index,subValue)
+        return this.animationStatus;
+    }
+
+    this.showingError               =function()
+    {
+        this.animationStatus = 'showing';
+    }
+
+    this.hidingError                =function()
+    {
+        this.animationStatus = 'hiding';
+    }
+
+
+    this.animationErrorComplete                =function()
+    {
+        this.animationStatus = 'waiting';
+    }
+
+    this.setErrorContainer          = function(html)
+    {
+        this.jqueryObject.wrap(html);
+        this.errorContainer = this.jqueryObject.parent();
+    }
+
+    this.setErrorMessageContainer   = function(jqueryObject)
+    {
+        this.errorMessageContainer = jqueryObject;
+    }
+
+    this.setErrorMessage            = function()
+    {
+        this.errorMessage = this.errorMessageContainer.text();
+    }
+
+    this.getName                    = function()
+    {
+        return this.name ;
+    }
+
+    this.makeError                  = function(Message)
+    {
+        var thisInvoker = this;
+        thisInvoker.errorContainer.bind('mouseenter',function()
         {
-            if($(subValue).parent().hasClass("js-form-validation-error-container"))
+            if(thisInvoker.getAnimationStatus()==='waiting')
             {
-                tempError = $(".js-form-validation-dinamic-error.error-identifier-"+$(subValue).prop("name"));
-                tempError.hide();
-
-                $(subValue).bind("showError",function()
+                thisInvoker.showingError();
+                thisInvoker.errorMessageContainer.show(0,function()
                 {
-                    fieldContainer = $(subValue).parent();
-                    tempError       =$(".js-form-validation-dinamic-error.error-identifier-"+$(subValue).prop("name"));
+                    thisInvoker.errorMessageContainer.css("opacity","0");
 
-                    tempError.css("opacity","0");
+                    thisInvoker.errorMessageContainer.css("-ms-grid-columns","min-content");
+                    thisInvoker.errorMessageContainer.css("display","-ms-grid");
 
-                    tempError.show(0,function()
+
+                    /*set min content width for other browsers*/
+                    thisInvoker.errorMessageContainer.width('-moz-min-content');
+                    thisInvoker.errorMessageContainer.width('-webkit-min-content');
+
+                    /*if error message box has more width that field container box adjust top right corner border radius*/
+                    if(thisInvoker.errorMessageContainer.outerWidth() > thisInvoker.errorContainer.outerWidth())
                     {
+                        thisInvoker.errorMessageContainer.css("border-top-right-radius","8px");
+                    }
+                    else
+                    {
+                        thisInvoker.errorMessageContainer.css("border-top-right-radius","0");
+                    }
 
-                        /*simulate min content width for IE*/
-                        tempError.css("-ms-grid-columns","min-content");
-                        tempError.css("display","-ms-grid");
+                    thisInvoker.errorMessageContainer.css("min-width",thisInvoker.errorMessageContainer.css("width"));
+                    thisInvoker.errorMessageContainer.offset({left:0,top:0});
+                    thisInvoker.errorMessageContainer.offset({left:thisInvoker.errorContainer.offset().left,top:thisInvoker.errorContainer.offset().top + thisInvoker.errorContainer.outerHeight()});
+                    thisInvoker.errorMessageContainer.outerWidth(thisInvoker.errorContainer.outerWidth());
 
-
-                        /*set min content width for other browsers*/
-                        tempError.width('-moz-min-content');
-                        tempError.width('-webkit-min-content');
-
-                        /*if error message box has more width that field container box adjust top right corner border radius*/
-                        if(tempError.outerWidth() > fieldContainer.width())
+                    thisInvoker.errorMessageContainer.css("opacity","1");
+                    thisInvoker.errorMessageContainer.hide(0,function()
+                    {
+                        thisInvoker.errorMessageContainer.slideDown(500,function()
                         {
-                            tempError.css("border-top-right-radius","8px");
-                        }
-                        else
-                        {
-                            tempError.css("border-top-right-radius","0");
-                        }
-
-                        tempError.css("min-width",tempError.css("width"));
-                        tempError.offset({left:0,top:0});
-                        tempError.offset({left:fieldContainer.offset().left,top:fieldContainer.offset().top + fieldContainer.outerHeight()});
-                        tempError.outerWidth(fieldContainer.outerWidth());
-
-                        tempError.hide(0,function()
-                        {
-                            tempError.css("opacity","1");
-                            $(subValue).prop("pintrot-show-animation","true");
-                            $(".js-form-validation-dinamic-error.error-identifier-"+value).slideDown(500);
+                            if(thisInvoker.requireHideAnimation)
+                            {
+                                thisInvoker.errorMessageContainer.slideUp(500,function()
+                                {
+                                    thisInvoker.requireHideAnimation =  false;
+                                    thisInvoker.animationErrorComplete();
+                                });
+                            }
+                            else
+                                thisInvoker.animationErrorComplete();
                         });
-                    });
-
-
-                });
-                $(subValue).bind("hideError",function()
-                {
-                    $(".js-form-validation-dinamic-error.error-identifier-"+value).slideUp(300,function()
-                    {
-                        $(subValue).prop("pintrot-show-animation","false");
                     });
                 });
             }
+            else
+                thisInvoker.requireShowAnimation = true;
         });
-    });
+
+        this.errorContainer.bind('mouseleave',function()
+        {
+            if(thisInvoker.getAnimationStatus()==='waiting')
+            {
+                thisInvoker.hidingError();
+                thisInvoker.errorMessageContainer.slideUp(500,function()
+                {
+                    thisInvoker.animationErrorComplete();
+                });
+            }
+            else
+                thisInvoker.requireHideAnimation = true;
+        });
+
+    }
+
+    this.initializeJsFormValidationError(jqueryObject);
+
+}
+
+function jsFormValidationRender(context,fieldList,errorsObject)
+{
+    this.jsFormValidationErrorListContainer         =null;
+    this.jsFormValidationContext                    =context;
+    this.jsFormValidationErrorsObject               =[];
+    this.jsFormValidationFieldList                  =[];
+    this.jsFormValidationFieldListElements          =[];
+    this.jsFormValidationDinamicErrorClasses        ='';
+    this.jsFormValidationErrorContainerClasses      ='';
+
+    this.jsIsSet                                    =function(variable)
+    {
+        return typeof variable !== 'undefined';
+    }
+
+    this.setJsFormValidationErrorsObject            =function(jsFormValidationErrorsObject)
+    {
+        if(!this.jsIsSet(jsFormValidationErrorsObject))
+            jsFormValidationErrorsObject=[];
+        this.jsFormValidationErrorsObject = jsFormValidationErrorsObject;
+    }
+
+    this.setJsFormValidationFieldList               =function(jsFormValidationFieldList)
+    {
+        if(!this.jsIsSet(jsFormValidationFieldList))
+            jsFormValidationFieldList=[];
+        this.jsFormValidationFieldList  = jsFormValidationFieldList;
+    }
+
+    this.setJsFormValidationFieldListElements       =function()
+    {
+        var thisInvoker = this;
+        $.each(this.jsFormValidationFieldList,function(index1,level1)
+        {
+            $.each($("[name='"+level1+"']",thisInvoker.jsFormValidationContext),function(index2,level2)
+            {
+                thisInvoker.jsFormValidationFieldListElements.push(new jsFormValidationError($(level2)));
+            });
+        });
+    }
+
+    this.setJsFormValidationDinamicErrorClasses     =function(jsFormValidationDinamicErrorClasses)
+    {
+        if(!this.jsIsSet(jsFormValidationDinamicErrorClasses))
+            jsFormValidationDinamicErrorClasses=' ';
+        this.jsFormValidationDinamicErrorClasses = ' js-form-validation-dinamic-error ' +jsFormValidationDinamicErrorClasses;
+    }
+
+    this.setJsFormValidationErrorContainerClasses   =function(jsFormValidationErrorContainerClasses)
+    {
+        if(!this.jsIsSet(jsFormValidationErrorContainerClasses))
+            jsFormValidationErrorContainerClasses=' ';
+        this.jsFormValidationErrorContainerClasses = ' js-form-validation-error-container ' + jsFormValidationErrorContainerClasses;
+    }
+
+    this.setJsFormValidationContext                 =function(context)
+    {
+        this.context = context;
+    }
+
+    this.cleanJsFormValidationErrors                =function ()
+    {
+        $.each(this.jsFormValidationFieldListElements,function(index,level1)
+        {
+            level1.cleanJsFormValidationError();
+        });
+        return false;
+    }
+
+    this.makeHtmlJsFormValidationErrors             = function ()
+    {
+        var thisInvoker = this;
+        $.each(thisInvoker.jsFormValidationFieldListElements,function(index1,errorValue)
+        {
+            if( errorValue.getName() !=='' && thisInvoker.jsIsSet(thisInvoker.jsFormValidationErrorsObject[errorValue.getName()]))
+            {
+                errorValue.setErrorContainer('<div class="'+thisInvoker.jsFormValidationErrorContainerClasses+' error-identifier-'+errorValue.getName()+'"></div>');
+                var newErrorMessage = $('<div class=" ' + thisInvoker.jsFormValidationDinamicErrorClasses + ' error-identifier-'+errorValue.getName()+'" >'+thisInvoker.jsFormValidationErrorsObject[errorValue.getName()]+'</div>');
+                $(".js-form-validation-list-errors").append(newErrorMessage);
+                newErrorMessage.hide(0,function()
+                {
+                    errorValue.setErrorMessageContainer(newErrorMessage);
+                    errorValue.makeError();
+                });
+            }
+        });
+    }
+
+    this.reloadErrors                                =function(errorsObject)
+    {
+        this.cleanJsFormValidationErrors();
+        this.setJsFormValidationErrorsObject(errorsObject);
+        this.makeHtmlJsFormValidationErrors();
+    }
+
+    this.initializeJsFormValidation                  =function(context,fieldList,errorsObject)
+    {
+        if($(".js-form-validation-list-errors").emptyObject())
+        {
+            this.jsFormValidationErrorListContainer =$('<div class="js-form-validation-list-errors"></div>');
+            $('body').append(this.jsFormValidationErrorListContainer);
+        }
+        this.setJsFormValidationErrorContainerClasses();
+        this.setJsFormValidationDinamicErrorClasses();
+        this.setJsFormValidationContext(context);
+        this.setJsFormValidationFieldList(fieldList);
+        this.setJsFormValidationFieldListElements();
+        this.setJsFormValidationErrorsObject(errorsObject);
+    }
+    this.initializeJsFormValidation(context,fieldList,errorsObject);
 }
 </script>

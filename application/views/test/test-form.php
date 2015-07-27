@@ -1,6 +1,7 @@
 <form id="test-form">
     <br>
     <br>
+    <div id="testxxx">
     field1:
     <input name="field1"></input>
     <br>
@@ -20,6 +21,7 @@
         </option>
     </select>
     <br>
+    </div>
     field3:
     <input type="radio" name="field3" value="male">Male<br>
     field3:
@@ -34,11 +36,16 @@
 */
 $(document).ready(function()
 {
-    setJsFormValidationErrorsObject({   "field1":"The <b>Field1</b> should have a validation ",
-                                        "field2":"The <b>Field2</b> should have a validation ",
-                                        "field3":"The <b>Field3</b> should have a validation ",
-                                        "field4":"The <b>Field4</b> should have a validation "
-                                    });
+    var testError = {   "field1":"The <b>Field1</b> should have a validation ",
+                        "field2":"The <b>Field2</b> should have a validation ",
+                        "field3":"The <b>Field3</b> should have a validation ",
+                        "field4":"The <b>Field4</b> should have a validation "
+                    };
+    var testList = ['field1','field2','field3','field4'];
+
+    var formValidationRenderInstance =  new jsFormValidationRender(document,testList,testError);
+
+    formValidationRenderInstance.makeHtmlJsFormValidationErrors();
 
     $("#submit-button").click(function()
     {
@@ -55,7 +62,7 @@ $(document).ready(function()
                     alert('no errors to show');
                 else
                 {
-                    setJsFormValidationErrorsObject(response.errorList);
+                    formValidationRenderInstance.reloadErrors(response.errorList);
                 }
             },
             error:function(json)
