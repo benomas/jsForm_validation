@@ -2,10 +2,10 @@
     <br>
     <br>
     field1:
-    <input name="field1"></input>
+    <input name="field1" data-formvalidation-name="field1"></input>
     <br>
     field2:
-    <select name="field2">
+    <select name="field2" data-formvalidation-name="field2">
         <option value="1">
             One
         </option>
@@ -20,12 +20,17 @@
         </option>
     </select>
     <br>
-    field3:
-    <input type="radio" name="field3" value="male">Male<br>
-    field3:
-    <input type="radio" name="field3" value="female">Female<br>
+    <div style="display:block; vertical-align: middle;">
+        <div data-formvalidation-name="field3" style="display:inline-block; background-color:#FFFFFF; vertical-align: middle;">
+            field3:
+        </div>
+        <div style="display:inline-block;vertical-align: middle;">
+            <input type="radio" name="field3" value="male" >Male<br>
+            <input type="radio" name="field3" value="female" >Female<br>
+        </div>
+    </div>
     field4:
-    <textarea name="field4"></textarea>
+    <textarea name="field4" data-formvalidation-name="field4"></textarea>
     <button id="submit-button" onclick="return false;">Simule</button>
 </form>
 <script>
